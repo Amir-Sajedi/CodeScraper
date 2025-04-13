@@ -4,6 +4,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import pika
+import json
 
 class RawData:
     def __init__(self,url):
@@ -47,6 +49,17 @@ class MaskanHouse:
         # Getting the link, no regex needed ;)
         self.url = links[0].get('onclick').split('(')[1][1:-2]
 
+def rabbit_publish(data):
+    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    channel = connection.channel()
+    channel.queue_declare(queue='detector_queue')
+    channel.basic_publish(
+        exchange='',
+        routing_key='detector_queue',
+        body=json.dumps(data)
+    )
+    connection.close()
+
 if __name__ == '__main__':
     maskan_file_data = MaskanData("https://maskan-file.ir/Site/Default.aspx")
     maskan_file_data.get_data()
@@ -66,5 +79,5 @@ if __name__ == '__main__':
     for house in maskan_houses:
         house.get_ad_link()
         maskan_houses_links.append(house.url)
-
-    print('\n'.join(maskan_houses_links),'\n',len(maskan_houses_links))
+    # print('\n'.join(maskan_houses_links),'\n',len(maskan_houses_links))
+    rabbit_publish(maskan_houses_links)
