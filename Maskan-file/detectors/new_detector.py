@@ -7,26 +7,32 @@ from selenium.webdriver.support import expected_conditions as EC
 import pika
 import json
 
+
 class RawData:
-    def __init__(self,url):
+    def __init__(self, url):
         self.driver = webdriver.Chrome()
         self.url = url
         self.html = None
+
     def get_data(self):
         self.driver.get(self.url)
         time.sleep(3)
+
     def parse_html(self):
         self.html = bs(self.driver.page_source, 'html.parser')
         return self.html
+
     def get_parsed(self):
         return self.html
+
 
 class MaskanData(RawData):
     def __init__(self, url):
         super().__init__(url)
         self.houses = []
+
     def get_all_houses(self):
-        for house in self.html.select_one("#Div_Grv").find_all('div',recursive=False):
+        for house in self.html.select_one("#Div_Grv").find_all('div', recursive=False):
             # .find() is there to go one level deeper, First div is useless
             self.houses.append(house.find())
         return self.houses
@@ -37,11 +43,13 @@ class MaskanData(RawData):
         )
         more_btn.click()
         time.sleep(3)
+
     def close_driver(self):
         self.driver.close()
 
+
 class MaskanHouse:
-    def __init__(self,div):
+    def __init__(self, div):
         self.div = div
         self.html = None
         self.url = 'NO_LINK'
@@ -50,6 +58,7 @@ class MaskanHouse:
         links = self.div.find_all('div', onclick=lambda link: link is not None and link.startswith("window.open("))
         # Getting the link, no regex needed ;)
         self.url = links[0].get('onclick').split('(')[1][1:-2]
+
 
 def get_new_data():
     try:
@@ -60,7 +69,7 @@ def get_new_data():
         maskan_houses_links = []
         for house in maskan_file_data.get_all_houses():
             # Make each house an object
-            if(house.parent.get('id')):
+            if (house.parent.get('id')):
                 # Take the ads out
                 maskan_houses.append(MaskanHouse(house))
         for house in maskan_houses:
@@ -73,6 +82,7 @@ def get_new_data():
     except:
         print(f"There was an Error")
         time.sleep(10)
+
 
 def rabbit_publish(data):
     connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
@@ -87,5 +97,5 @@ def rabbit_publish(data):
 
 
 if __name__ == '__main__':
-    while(True):
+    while (True):
         get_new_data()
