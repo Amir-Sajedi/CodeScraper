@@ -98,9 +98,9 @@ def get_new_data():
         for office in office_data.get_data():
             office_json = MelkRadarAd(office).get_final_json()
             final_data_list.append(json.dumps(office_json, indent=4))
-        # time.sleep(10)
         # print(*final_data_list, sep='\n\n\n')
         # print(len(final_data_list))
+        print(len(final_data_list))
         rabbit_publish(final_data_list)
     except Exception as e:
         print("an Error occurred", e)

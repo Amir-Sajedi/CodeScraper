@@ -98,12 +98,12 @@ def get_new_data():
         for office in office_data.get_data():
             office_json = MelkRadarAd(office).get_final_json()
             final_data_list.append(json.dumps(office_json, indent=4))
-        # EVERY 5 MINUTES
-        time.sleep(300)
+        # EVERY 1 MINUTE
         rabbit_publish(final_data_list)
+        time.sleep(60)
     except:
         print("an Error occurred")
-        time.sleep(300)
+        time.sleep(10)
 
 
 if __name__ == '__main__':

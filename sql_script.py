@@ -65,8 +65,8 @@ def database_publish(data):
             listing['name'],
             listing['address'],
             f'{int(listing["price"]):,}' if str(listing['price']).isnumeric() else listing['price'],
-            listing['area'],
-            listing['room_count'],
+            int(listing['area']) if listing['area'] else listing['area'],
+            int(listing['room_count']) if listing['room_count'] else listing['room_count'],
             int(listing['year']) if listing['year'] else None,
             feats_json,
             images_json
