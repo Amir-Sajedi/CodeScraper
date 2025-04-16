@@ -4,7 +4,7 @@ import time
 import pymysql
 
 
-def rabbit_consume():
+def rabbit_consume__MelkRadar():
     connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
     channel = connection.channel()
     channel.queue_declare(queue='scrapper_queue__MelkRadar')
@@ -15,6 +15,25 @@ def rabbit_consume():
         #
         # body: the actual message you sent from the detector
         method_frame, header_frame, body = channel.basic_get(queue='scrapper_queue__MelkRadar', auto_ack=True)
+        if (method_frame):
+            data = json.loads(body)
+            database_publish(data)
+        else:
+            print("NO_READY_DATA_AVAILABLE")
+            time.sleep(10)
+
+
+def rabbit_consume__MaskanFile():
+    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    channel = connection.channel()
+    channel.queue_declare(queue='scrapper_queue__MaskanFile')
+    while True:
+        # method_frame: metadata about the message (e.g., delivery tag, etc.) (is None if there aren't any messages received)
+        #
+        # header_frame: headers and properties (Not needed here)
+        #
+        # body: the actual message you sent from the detector
+        method_frame, header_frame, body = channel.basic_get(queue='scrapper_queue__MaskanFile', auto_ack=True)
         if (method_frame):
             data = json.loads(body)
             database_publish(data)
@@ -63,4 +82,5 @@ def database_publish(data):
 
 
 if __name__ == '__main__':
-    rabbit_consume()
+    rabbit_consume__MelkRadar()
+    # rabbit_consume__MaskanFile()

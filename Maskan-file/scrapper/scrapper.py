@@ -2,6 +2,7 @@ import pika
 import json
 import time
 
+
 def rabbit_consume():
     connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
     channel = connection.channel()
@@ -19,10 +20,26 @@ def rabbit_consume():
         else:
             time.sleep(2)
 
+
+def rabbit_publish(data):
+    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    channel = connection.channel()
+    channel.queue_declare(queue='scrapper_queue__MaskanFile')
+    channel.basic_publish(
+        exchange='',
+        routing_key='scrapper_queue__MaskanFile',
+        body=json.dumps(data)
+    )
+    connection.close()
+
+
 def example_process(data):
     print(*data, sep="\n")
     print("////////////////////////////////////")
     print("END OF THIS PROCESS")
     print("////////////////////////////////////")
+    # rabbit_publish(processed_data)
+
+
 if __name__ == '__main__':
     rabbit_consume()
