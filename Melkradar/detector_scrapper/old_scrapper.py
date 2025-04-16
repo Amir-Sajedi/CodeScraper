@@ -41,13 +41,13 @@ class Data:
     def get_data(self):
         try:
             return requests.post(self.url, headers=self.header, json=self.payload).json()["value"]
-        except:
-            print("there was an error")
+        except Exception as e:
+            print("there was an error", e)
 
 
 class MelkRadarAd:
     def __init__(self, data_json):
-        self.id = data_json["Id"]
+        self.id = data_json["EasyKey"]
         self.url = data_json["Url"]
         self.name = data_json["Summary"].split('\n')[0].split('-')[0]
         self.address = data_json['VendorCityAreaTitle']
@@ -90,8 +90,8 @@ def get_new_data():
     try:
         url = "https://melkradar.com/p/odata/PeoplePanel/estateMarker/getAdvers"
         final_data_list = []
-        apartment_data = Data(url, "Apartment", 100)
-        office_data = Data(url, "Office", 100)
+        apartment_data = Data(url, "Apartment", 200)
+        office_data = Data(url, "Office", 200)
         for apartment in apartment_data.get_data():
             apartment_json = MelkRadarAd(apartment).get_final_json()
             final_data_list.append(json.dumps(apartment_json, indent=4))
@@ -102,8 +102,8 @@ def get_new_data():
         # print(*final_data_list, sep='\n\n\n')
         # print(len(final_data_list))
         rabbit_publish(final_data_list)
-    except:
-        print("an Error occurred")
+    except Exception as e:
+        print("an Error occurred", e)
         time.sleep(10)
 
 
