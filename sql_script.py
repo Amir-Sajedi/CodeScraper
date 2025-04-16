@@ -18,8 +18,8 @@ def rabbit_consume():
         if (method_frame):
             data = json.loads(body)
             database_publish(data)
-            time.sleep(10)
         else:
+            print("NO_READY_DATA_AVAILABLE")
             time.sleep(10)
 
 

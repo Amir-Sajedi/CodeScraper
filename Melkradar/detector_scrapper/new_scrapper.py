@@ -90,19 +90,20 @@ def get_new_data():
     try:
         url = "https://melkradar.com/p/odata/PeoplePanel/estateMarker/getAdvers"
         final_data_list = []
-        apartment_data = Data(url, "Apartment", 2)
-        office_data = Data(url, "Office", 2)
+        apartment_data = Data(url, "Apartment", 10)
+        office_data = Data(url, "Office", 10)
         for apartment in apartment_data.get_data():
             apartment_json = MelkRadarAd(apartment).get_final_json()
             final_data_list.append(json.dumps(apartment_json, indent=4))
         for office in office_data.get_data():
             office_json = MelkRadarAd(office).get_final_json()
             final_data_list.append(json.dumps(office_json, indent=4))
-        time.sleep(10)
+        # EVERY 5 MINUTES
+        time.sleep(300)
         rabbit_publish(final_data_list)
     except:
         print("an Error occurred")
-        time.sleep(10)
+        time.sleep(300)
 
 
 if __name__ == '__main__':
