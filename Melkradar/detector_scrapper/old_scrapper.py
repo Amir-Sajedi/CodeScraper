@@ -94,13 +94,13 @@ def get_new_data():
         office_data = Data(url, "Office", 100)
         for apartment in apartment_data.get_data():
             apartment_json = MelkRadarAd(apartment).get_final_json()
-            final_data_list.append(apartment_json)
+            final_data_list.append(json.dumps(apartment_json, indent=4))
         for office in office_data.get_data():
             office_json = MelkRadarAd(office).get_final_json()
-            final_data_list.append(office_json)
+            final_data_list.append(json.dumps(office_json, indent=4))
         # time.sleep(10)
-        print(*final_data_list, sep='\n\n\n')
-        print(len(final_data_list))
+        # print(*final_data_list, sep='\n\n\n')
+        # print(len(final_data_list))
         rabbit_publish(final_data_list)
     except:
         print("an Error occurred")

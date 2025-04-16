@@ -47,7 +47,7 @@ class Data:
 
 class MelkRadarAd:
     def __init__(self, data_json):
-        self.id = data_json["Id"]
+        self.id = data_json["EasyKey"]
         self.url = data_json["Url"]
         self.name = data_json["Summary"].split('\n')[0].split('-')[0]
         self.address = data_json['VendorCityAreaTitle']
@@ -94,10 +94,10 @@ def get_new_data():
         office_data = Data(url, "Office", 2)
         for apartment in apartment_data.get_data():
             apartment_json = MelkRadarAd(apartment).get_final_json()
-            final_data_list.append(apartment_json)
+            final_data_list.append(json.dumps(apartment_json, indent=4))
         for office in office_data.get_data():
             office_json = MelkRadarAd(office).get_final_json()
-            final_data_list.append(office_json)
+            final_data_list.append(json.dumps(office_json, indent=4))
         time.sleep(10)
         rabbit_publish(final_data_list)
     except:
@@ -106,5 +106,5 @@ def get_new_data():
 
 
 if __name__ == '__main__':
-    while (True):
+    while True:
         get_new_data()
