@@ -47,7 +47,7 @@ class Data:
 
 class MelkRadarAd:
     def __init__(self, data_json):
-        self.id = data_json["Id"]
+        self.id = data_json["EasyKey"]
         self.url = data_json["Url"]
         self.name = data_json["Summary"].split('\n')[0].split('-')[0]
         self.address = data_json['VendorCityAreaTitle']
