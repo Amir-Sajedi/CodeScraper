@@ -51,6 +51,7 @@ def database_publish(data):
         charset='utf8mb4'
     )
     cursor = db.cursor()
+    successful_imports = 0
     for listing in data:
         listing = json.loads(listing)
         sql = """
@@ -73,12 +74,13 @@ def database_publish(data):
         )
         try:
             cursor.execute(sql, values)
+            successful_imports += 1
         except Exception as e:
             print("Error", e)
     db.commit()
     cursor.close()
     db.close()
-    print("Data got transfered!")
+    print(f"Data got transfered! , {successful_imports} were successful")
 
 
 if __name__ == '__main__':
