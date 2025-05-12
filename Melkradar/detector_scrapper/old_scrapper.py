@@ -5,7 +5,7 @@ import requests
 
 
 class Data:
-    def __init__(self, url, estate, count):
+    def __init__(self, url, estate, count, page_num):
         self.url = url
         self.header = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
@@ -34,7 +34,7 @@ class Data:
                 "BuildingAgeMax": None,
                 "BuildingAgeMin": None
             },
-            "PageNo": 1,
+            "PageNo": page_num,
             "PageSize": count
         }
 
@@ -90,16 +90,16 @@ def get_new_data():
     try:
         url = "https://melkradar.com/p/odata/PeoplePanel/estateMarker/getAdvers"
         final_data_list = []
-        apartment_data = Data(url, "Apartment", 200)
-        office_data = Data(url, "Office", 200)
-        for apartment in apartment_data.get_data():
-            apartment_json = MelkRadarAd(apartment).get_final_json()
-            final_data_list.append(json.dumps(apartment_json, indent=4))
-        for office in office_data.get_data():
-            office_json = MelkRadarAd(office).get_final_json()
-            final_data_list.append(json.dumps(office_json, indent=4))
-        # print(*final_data_list, sep='\n\n\n')
-        # print(len(final_data_list))
+        # Getting 4000 Listings
+        for page_num in range(1, 11):
+            apartment_data = Data(url, "Apartment", 200, page_num)
+            office_data = Data(url, "Office", 200, page_num)
+            for apartment in apartment_data.get_data():
+                apartment_json = MelkRadarAd(apartment).get_final_json()
+                final_data_list.append(json.dumps(apartment_json, indent=4))
+            for office in office_data.get_data():
+                office_json = MelkRadarAd(office).get_final_json()
+                final_data_list.append(json.dumps(office_json, indent=4))
         print(len(final_data_list))
         rabbit_publish(final_data_list)
     except Exception as e:
