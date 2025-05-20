@@ -101,8 +101,8 @@ def get_new_data():
         # EVERY 1 MINUTE
         rabbit_publish(final_data_list)
         time.sleep(60)
-    except:
-        print("an Error occurred")
+    except Exception as e:
+        print("an Error occurred",e)
         time.sleep(10)
 
 

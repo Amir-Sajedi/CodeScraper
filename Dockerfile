@@ -11,4 +11,4 @@ RUN if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.
 
 EXPOSE 8000
 
-CMD python Melkradar/detector_scrapper/new_scrapper.py && python sql_script.py && uvicorn Server-side.main:app --host 0.0.0.0 --port 8000
+CMD python3 Melkradar/detector_scrapper/new_scrapper.py && python3 sql_script.py && uvicorn Server-side.main:app --host 0.0.0.0 --port 8000
