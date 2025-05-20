@@ -1,76 +1,152 @@
-# Code Scraper
-## Overview
-This project is designed to scrape data from various sources, process it through a queuing system, and store it in a MySQL database. The pipeline consists of data detectors, a RabbitMQ-based queuing system, and a Python-based converter to store data in MySQL.
+# CodeScraper
 
-## Architecture
-1. **Detectors**: Custom scripts or tools responsible for scraping and collecting raw data from specified sources.
-2. **RabbitMQ**: A message broker that queues the scraped data, ensuring reliable and scalable data processing.
-3. **Converter**: A Python script that processes the queued data and stores it in a MySQL database.
+A modular real estate data collection, processing, and API serving platform.
 
-## Prerequisites
-- Python 3.8+
-- RabbitMQ server (installed and running)
-- MySQL server
-- Required Python libraries (listed in `requirements.txt`)
+This project scrapes real estate listings from MelkRadar.com, processes and stores them in a MySQL database, and provides a REST API (using FastAPI) to access and analyze the listings. The data pipeline uses RabbitMQ for asynchronous task handling and messaging.
 
-## Setup Instructions
-1. **Clone the Repository**:
-   ```bash
-   git clone <repository-url>
-   cd <repository-name>
-   ```
+---
 
-2. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+## Features
 
-3. **Configure RabbitMQ**:
-   - Ensure RabbitMQ is installed and running.
-   - Update the RabbitMQ connection settings in `config.py` (e.g., host, port, credentials).
+- **Data Scraping:** Collects real estate apartment and office data from MelkRadar.com via HTTP POST requests.
+- **Queue-Based Processing:** Uses RabbitMQ to publish and consume scraped data, enabling scalable and decoupled processing.
+- **Database Integration:** Stores listing data in a MySQL database with robust error handling.
+- **REST API:** Exposes endpoints via FastAPI to fetch and analyze stored listings.
+- **Containerized:** Easily deployable using Docker.
 
-4. **Configure MySQL**:
-   - Set up a MySQL database and user.
-   - Update the MySQL connection settings in `config.py` (e.g., host, database, user, password).
-
-5. **Run Detectors**:
-   - Execute the detector scripts to start scraping data:
-     ```bash
-     python detectors/<detector_script>.py
-     ```
-
-6. **Run Converter**:
-   - Start the converter to process queued data and store it in MySQL:
-     ```bash
-     python converter.py
-     ```
+---
 
 ## Project Structure
+
 ```
-├── detectors/              # Scripts for scraping data
-├── converter.py            # Python script to process and store data in MySQL
-├── config.py              # Configuration file for RabbitMQ and MySQL settings
-├── requirements.txt        # Python dependencies
-└── README.md              # This file
+.
+├── Melkradar/
+│   └── detector_scrapper/
+│       └── new_scrapper.py        # Scrapes and publishes new listings to RabbitMQ
+├── Server-side/
+│   └── main.py                    # FastAPI backend serving listing data
+├── sql_script.py                  # Consumes queue and inserts data into MySQL
+├── requirements.txt               # Python dependencies
+├── Dockerfile                     # Container build file
+└── README.md                      # You are here!
 ```
 
-## Usage
-1. Start the RabbitMQ server.
-2. Run the detector scripts to scrape data and send it to the RabbitMQ queue.
-3. Run the `converter.py` script to consume data from the queue and store it in the MySQL database.
+---
 
-Example:
+## Prerequisites
+
+- **Docker** (recommended)  
+  or
+- Python 3.11+
+- MySQL database (with the `listings` table)
+- RabbitMQ server running locally or accessible from the container
+- Python dependencies from `requirements.txt`
+
+---
+
+## Setup & Usage
+
+### 1. Clone the repository
+
 ```bash
-python detectors/scraper.py
-python converter.py
+git clone https://github.com/SLFatemi/CodeScraper.git
+cd CodeScraper
 ```
+
+### 2. Build and Run with Docker (Recommended)
+
+```bash
+docker build -t codescraper .
+docker run -p 8000:8000 codescraper
+```
+
+*This will:*
+- Scrape new data from MelkRadar and publish to RabbitMQ (`new_scrapper.py`)
+- Consume data from RabbitMQ and store in MySQL (`sql_script.py`)
+- Start FastAPI backend (port 8000)
+
+### 3. Manual Run (Advanced / Development)
+
+Start dependencies (RabbitMQ, MySQL), then in three terminals:
+
+- **Data Scraper:**  
+  `python Melkradar/detector_scrapper/new_scrapper.py`
+- **Consumer:**  
+  `python sql_script.py`
+- **API Server:**  
+  `uvicorn Server-side.main:app --reload`
+
+---
+
+## Environment Variables & Configuration
+
+Update database and RabbitMQ connection parameters as needed in:
+- `sql_script.py` (MySQL and RabbitMQ)
+- `Server-side/main.py` (MySQL)
+
+---
+
+## API Usage
+
+After starting the server, access the FastAPI docs at:  
+`http://localhost:8000/docs`
+
+### Example endpoint
+
+- `POST /link`  
+  **Body:**  
+  ```json
+  { "link": "URL of the listing" }
+  ```
+  **Returns:**  
+  Top 10 similar listings (dummy implementation for now).
+
+---
+
+## Database Schema
+
+Create the following table in MySQL:
+
+```sql
+CREATE TABLE listings (
+    id VARCHAR(255) PRIMARY KEY,
+    url TEXT,
+    name TEXT,
+    address TEXT,
+    price TEXT,
+    area INT,
+    room_count INT,
+    year INT,
+    feats JSON,
+    images JSON
+);
+```
+
+---
 
 ## Contributing
-1. Fork the repository.
-2. Create a feature branch (`git checkout -b feature-branch`).
-3. Commit your changes (`git commit -m "Add feature"`).
-4. Push to the branch (`git push origin feature-branch`).
-5. Create a pull request.
+
+Contributions are welcome! Please open issues or pull requests for bug fixes, new features, or improvements.
+
+---
 
 ## License
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+
+MIT License
+
+---
+
+## Acknowledgments
+
+- [MelkRadar.com](https://melkradar.com) for data source
+- [Maskan-file.ir](https://maskan-file.ir) for data source
+- [FastAPI](https://fastapi.tiangolo.com/)
+- [RabbitMQ](https://www.rabbitmq.com/)
+- [PyMySQL](https://pymysql.readthedocs.io/)
+
+---
+
+## Security Notice
+
+**Do not commit production credentials or secrets.**  
+Current database and RabbitMQ connection details are for development only.
