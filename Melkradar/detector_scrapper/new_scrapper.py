@@ -75,7 +75,7 @@ class MelkRadarAd:
 
 
 def rabbit_publish(data):
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
     channel = connection.channel()
     channel.queue_declare(queue='scrapper_queue__MelkRadar')
     channel.basic_publish(
