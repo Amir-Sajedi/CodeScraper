@@ -102,7 +102,7 @@ def get_new_data():
         rabbit_publish(final_data_list)
         time.sleep(60)
     except Exception as e:
-        print("an Error occurred",e)
+        print("ERROR new_scrapper.py: ",e)
         time.sleep(10)
 
 

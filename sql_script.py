@@ -77,7 +77,7 @@ def database_publish(data):
             cursor.execute(sql, values)
             successful_imports += 1
         except Exception as e:
-            print("Error", e)
+            print("ERROR sql_script.py: ", e)
     db.commit()
     cursor.close()
     db.close()
