@@ -44,10 +44,11 @@ def rabbit_consume__MaskanFile():
 
 def database_publish(data):
     db = pymysql.connect(
-        host='localhost',
+        host='sahand.liara.cloud',
+        port=30896,
         user='root',
-        password='12345678',
-        database='codescrapper',
+        password='3gsc2mpq4mY217f04ccMxncb',
+        database='upbeat_hodgkin',
         charset='utf8mb4'
     )
     cursor = db.cursor()
