@@ -52,6 +52,7 @@ def database_publish(data):
     )
     cursor = db.cursor()
     successful_imports = 0
+    print(data)
     for listing in data:
         listing = json.loads(listing)
         sql = """
@@ -84,5 +85,5 @@ def database_publish(data):
 
 
 if __name__ == '__main__':
-    rabbit_consume__MelkRadar()
-    # rabbit_consume__MaskanFile()
+    # rabbit_consume__MelkRadar()
+    rabbit_consume__MaskanFile()
