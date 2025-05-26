@@ -75,7 +75,7 @@ class MelkRadarAd:
 
 
 def rabbit_publish(data):
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
     channel = connection.channel()
     channel.queue_declare(queue='scrapper_queue__MelkRadar')
     channel.basic_publish(
@@ -101,8 +101,8 @@ def get_new_data():
         # EVERY 1 MINUTE
         rabbit_publish(final_data_list)
         time.sleep(60)
-    except:
-        print("an Error occurred")
+    except Exception as e:
+        print("ERROR new_scrapper.py: ",e)
         time.sleep(10)
 
 

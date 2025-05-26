@@ -71,7 +71,7 @@ class house:
 
 
 def rabbit_consume():
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
     channel = connection.channel()
     channel.queue_declare(queue='detector_queue')
     while True:
@@ -89,7 +89,7 @@ def rabbit_consume():
 
 
 def rabbit_publish(data):
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
     channel = connection.channel()
     channel.queue_declare(queue='scrapper_queue__MaskanFile')
     channel.basic_publish(

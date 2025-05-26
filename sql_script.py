@@ -5,7 +5,7 @@ import pymysql
 
 
 def rabbit_consume__MelkRadar():
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
     channel = connection.channel()
     channel.queue_declare(queue='scrapper_queue__MelkRadar')
     while True:
@@ -24,7 +24,7 @@ def rabbit_consume__MelkRadar():
 
 
 def rabbit_consume__MaskanFile():
-    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
     channel = connection.channel()
     channel.queue_declare(queue='scrapper_queue__MaskanFile')
     while True:
@@ -44,10 +44,11 @@ def rabbit_consume__MaskanFile():
 
 def database_publish(data):
     db = pymysql.connect(
-        host='localhost',
+        host='sahand.liara.cloud',
+        port=30896,
         user='root',
-        password='12345678',
-        database='codescrapper',
+        password='3gsc2mpq4mY217f04ccMxncb',
+        database='upbeat_hodgkin',
         charset='utf8mb4'
     )
     cursor = db.cursor()
@@ -77,7 +78,7 @@ def database_publish(data):
             cursor.execute(sql, values)
             successful_imports += 1
         except Exception as e:
-            print("Error", e)
+            print("ERROR sql_script.py: ", e)
     db.commit()
     cursor.close()
     db.close()

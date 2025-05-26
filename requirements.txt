@@ -1,5 +1,0 @@
-selenium
-requests
-pika
-jdatetime
-bs4
