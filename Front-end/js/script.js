@@ -16,7 +16,7 @@ hideResults()
 
 async function fetchData(url) {
     try {
-        const res = await fetch('https://sina.mhreza.ir/link', {
+        const res = await fetch('https://sina.mhreza.ir/link',{
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

@@ -5,7 +5,7 @@ import pymysql
 
 
 def rabbit_consume__MelkRadar():
-    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
     channel = connection.channel()
     channel.queue_declare(queue='scrapper_queue__MelkRadar')
     while True:
@@ -24,7 +24,7 @@ def rabbit_consume__MelkRadar():
 
 
 def rabbit_consume__MaskanFile():
-    connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
     channel = connection.channel()
     channel.queue_declare(queue='scrapper_queue__MaskanFile')
     while True:
@@ -53,6 +53,7 @@ def database_publish(data):
     )
     cursor = db.cursor()
     successful_imports = 0
+    print(data)
     for listing in data:
         listing = json.loads(listing)
         sql = """
@@ -77,7 +78,7 @@ def database_publish(data):
             cursor.execute(sql, values)
             successful_imports += 1
         except Exception as e:
-            print("Error", e)
+            print("ERROR sql_script.py: ", e)
     db.commit()
     cursor.close()
     db.close()
@@ -85,5 +86,5 @@ def database_publish(data):
 
 
 if __name__ == '__main__':
-    rabbit_consume__MelkRadar()
-    # rabbit_consume__MaskanFile()
+    # rabbit_consume__MelkRadar()
+    rabbit_consume__MaskanFile()

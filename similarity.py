@@ -1,50 +1,40 @@
-import math
-import time
-
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 import pandas as pd
 import pymysql
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import NearestNeighbors
 
-app = FastAPI()
+
+# Function to clean and convert price to float
+def clean_price(price_str):
+    if pd.isna(price_str) or price_str == "":
+        return np.nan
+
+    # If price contains a comma and a space (mortgage format like "90000000 ,8000000")
+    if isinstance(price_str, str) and "," in price_str and " " in price_str:
+        # Take only the first part (sale price)
+        price_str = price_str.split(" ")[0]
+
+    # Remove commas
+    if isinstance(price_str, str):
+        price_str = price_str.replace(",", "")
+
+    try:
+        return float(price_str)
+    except (ValueError, TypeError):
+        return np.nan
 
 
-class InputLink(BaseModel):
-    link: str
-
-
-class Listing(BaseModel):
-    name: str
-    percentage: int
-    url: str
-
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# FROM https://github.com/Amir-Sajedi/CodeScraper
-
-def find_similar(id):
+def get_similar():
     try:
 
         db = pymysql.connect(
-            host='sahand.liara.cloud',
-            port=30896,
+            host='localhost',
             user='root',
-            password='3gsc2mpq4mY217f04ccMxncb',
-            database='upbeat_hodgkin',
+            password='12345678',
+            database='codescrapper',
             charset='utf8mb4'
         )
-
         print("Successfully connected to the database!")
 
         # Create a cursor object to execute SQL queries
@@ -108,7 +98,7 @@ def find_similar(id):
         model.fit(X_scaled)
 
         # Get target house ID from user
-        target_id = id
+        target_id = input("Enter the house ID to find similar properties: ")
 
         if target_id in df['id'].values:
             target_index = df.index[df['id'] == target_id][0]
@@ -144,7 +134,7 @@ def find_similar(id):
 
             # Add an exponential transformation factor to create more spread in the middle range
             # Higher value of alpha creates stronger exponential effect
-            alpha = 50.0  # Tune this value: higher = more aggressive spread
+            alpha = 5.0  # Tune this value: higher = more aggressive spread
 
             # Calculate similarity percentages
             similarity_percentages = []
@@ -175,7 +165,7 @@ def find_similar(id):
                 if pd.isna(url) or url == "":
                     url = f"https://example.com/house/{int(df.loc[idx, 'id'])}"
 
-                similar_listings.append([f'{name}',f"{math.trunc(similarity)}",f"{url}"])
+                similar_listings.append([name, similarity, url])
 
             # Print target house info
             print(f"\nTarget house ID = {target_id}, Name = {df.loc[target_index, 'name']}")
@@ -185,6 +175,12 @@ def find_similar(id):
             print(f"Min distance in similar items: {min_dist:.4f}")
             print(f"Max distance in sample: {max_dist:.4f}")
             print(f"Similarity range: {min_similarity}% to {max_similarity}%")
+
+            # Return the results as requested: [name, percentage, url]
+            print("\nSimilar properties:")
+            for listing in similar_listings:
+                print(f"['{listing[0]}', {listing[1]:.2f}, '{listing[2]}']")
+
             # Return as a properly formatted list for potential API usage
             return similar_listings
 
@@ -199,52 +195,5 @@ def find_similar(id):
         traceback.print_exc()
         return []
 
-def clean_price(price_str):
-    if pd.isna(price_str) or price_str == "":
-        return np.nan
 
-    # If price contains a comma and a space (mortgage format like "90000000 ,8000000")
-    if isinstance(price_str, str) and "," in price_str and " " in price_str:
-        # Take only the first part (sale price)
-        price_str = price_str.split(" ")[0]
-
-    # Remove commas
-    if isinstance(price_str, str):
-        price_str = price_str.replace(",", "")
-
-    try:
-        return float(price_str)
-    except (ValueError, TypeError):
-        return np.nan
-
-# ////////////////
-
-def get_similar(url):
-    db = pymysql.connect(
-        host='sahand.liara.cloud',
-        port=30896,
-        user='root',
-        password='3gsc2mpq4mY217f04ccMxncb',
-        database='upbeat_hodgkin',
-        charset='utf8mb4'
-    )
-    cursor = db.cursor()
-    try:
-        # /////////////////// TEMP
-        query = "SELECT * FROM listings WHERE url = %s;"
-        cursor.execute(query, (url.link,))
-        row = cursor.fetchone()
-        cursor.close()
-        raw_return = find_similar(row[0])
-        reponse = []
-        for house in raw_return:
-            reponse.append(Listing(name = house[0],percentage =house[1],url = house[2]))
-        return reponse
-    except:
-        raise HTTPException(status_code=404)
-
-
-@app.post('/link', response_model=list[Listing])
-async def get_link(input_link: InputLink):
-    time.sleep(2)
-    return get_similar(input_link)
+get_similar()
